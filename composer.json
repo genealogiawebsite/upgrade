@@ -1,25 +1,25 @@
 {
-    "name": "laravel-enso/upgrade",
+    "name": "genealogiawebsite/upgrade",
     "description": "Helper classes dependency for Laravel Enso",
     "keywords": [
-        "laravel-enso",
+        "genealogiawebsite",
         "upgrade"
     ],
-    "homepage": "https://github.com/laravel-enso/upgrade",
+    "homepage": "https://github.com/genealogiawebsite/upgrade",
     "type": "library",
     "license": "MIT",
     "authors": [{
         "name": "Adrian Ocneanu",
         "email": "aocneanu@gmail.com",
-        "homepage": "https://laravel-enso.com",
+        "homepage": "https://genealogiawebsite.com",
         "role": "Developer"
     }],
     "require": {
         "php": ">=7.4.0",
         "laravel/framework": "^8.0",
-        "laravel-enso/helpers": "^2.0",
-        "laravel-enso/permissions": "^4.0",
-        "laravel-enso/roles": "^4.1"
+        "genealogiawebsite/helpers": "^2.0",
+        "genealogiawebsite/permissions": "^4.0",
+        "genealogiawebsite/roles": "^4.1"
     },
     "autoload": {
         "psr-4": {

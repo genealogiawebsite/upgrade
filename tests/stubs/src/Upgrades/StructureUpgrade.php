@@ -7,13 +7,13 @@ use LaravelEnso\Upgrade\Contracts\MigratesStructure;
 
 class StructureUpgrade implements MigratesStructure
 {
-    public function permissions(): Collection
+    public function permissions(): array
     {
-        return new Collection();
+        return [];
     }
 
-    public function roles(): Collection
+    public function roles(): array
     {
-        return new Collection();
+        return [];
     }
 }

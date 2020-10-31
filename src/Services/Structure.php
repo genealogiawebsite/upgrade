@@ -19,18 +19,18 @@ class Structure implements Upgrade, MigratesData, Prioritization, MigratesPostDa
 {
     private MigratesStructure $upgrade;
     private Collection $existing;
-    private Collection $allRoles;
-    private Collection $upgradeRoles;
-    private Role $defaultRole;
+    private Collection $roles;
+    private string $defaultRole;
 
     public function __construct(MigratesStructure $upgrade)
     {
         $this->upgrade = $upgrade;
+        $this->defaultRole = Config::get('enso.config.defaultRole');
     }
 
     public function isMigrated(): bool
     {
-        $permissions = $this->upgrade->permissions()->pluck('name');
+        $permissions = Collection::wrap($this->upgrade->permissions())->pluck('name');
 
         $this->existing = Permission::whereIn('name', $permissions)->pluck('name');
 
@@ -39,15 +39,13 @@ class Structure implements Upgrade, MigratesData, Prioritization, MigratesPostDa
 
     public function migrateData(): void
     {
-        $this->defaultRole = Role::whereName(Config::get('enso.config.defaultRole'))->first();
-
-        $this->upgrade->permissions()
+        Collection::wrap($this->upgrade->permissions())
             ->reject(fn ($permission) => $this->existing->contains($permission['name']))
             ->each(fn ($permission) => $this->storeWithRoles($permission));
 
         if (App::isLocal()) {
-            $this->allRoles()
-                ->reject(fn ($role) => $role->is($this->defaultRole))
+            $this->roles()
+                ->reject(fn ($role) => $role->name === $this->defaultRole)
                 ->each->writeConfig();
         }
     }
@@ -73,7 +71,7 @@ class Structure implements Upgrade, MigratesData, Prioritization, MigratesPostDa
 
     public function applicable(): bool
     {
-        return ! $this->upgrade instanceof Applicable
+        return !$this->upgrade instanceof Applicable
             || $this->upgrade->applicable();
     }
 
@@ -82,29 +80,18 @@ class Structure implements Upgrade, MigratesData, Prioritization, MigratesPostDa
         $permission = Permission::create($permission);
 
         $permission->roles()
-            ->sync($this->roles($permission));
+            ->sync($this->syncRoles($permission));
     }
 
-    private function roles(Permission $permission): Collection
+    private function syncRoles(Permission $permission): Collection
     {
-        return $permission->is_default
-            ? $this->allRoles()
-            : $this->upgradeRoles();
+        return $this->roles()->when(!$permission->is_default, fn($roles) => $roles
+            ->filter(fn($role) => in_array($role->name, $this->upgrade->roles())
+                || $role->name === $this->defaultRole));
     }
 
-    private function allRoles(): Collection
+    private function roles(): Collection
     {
-        return $this->allRoles ??= Role::get();
-    }
-
-    private function upgradeRoles()
-    {
-        $hasAdmin = $this->upgrade->roles()
-            ->some(fn ($role) => $role === $this->defaultRole->name);
-
-        return $this->upgradeRoles ??= Role::query()
-            ->whereIn('name', $this->upgrade->roles())
-            ->get()
-            ->when(! $hasAdmin, fn ($roles) => $roles->push($this->defaultRole));
+        return $this->roles ??= Role::get();
     }
 }

@@ -2,17 +2,15 @@
 
 namespace LaravelEnso\Upgrade\Traits;
 
-use Illuminate\Support\Collection;
-
 trait StructureMigration
 {
-    public function permissions(): Collection
+    public function permissions(): array
     {
-        return new Collection($this->permissions);
+        return $this->permissions;
     }
 
-    public function roles(): Collection
+    public function roles(): array
     {
-        return new Collection($this->roles ?? []);
+        return $this->roles ?? [];
     }
 }

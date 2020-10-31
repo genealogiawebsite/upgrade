@@ -7,7 +7,7 @@ use LaravelEnso\Upgrade\Services\Upgrade as Service;
 
 class Upgrade extends Command
 {
-    protected $signature = 'enso:upgrade {--manual}';
+    protected $signature = 'enso:upgrade {--manual} {--before-migration}';
 
     protected $description = 'This command will upgrade your Enso project to the latest version';
 
@@ -15,6 +15,7 @@ class Upgrade extends Command
     {
         (new Service())
             ->manual($this->option('manual'))
+            ->beforeMigration($this->option('before-migration'))
             ->handle();
     }
 }

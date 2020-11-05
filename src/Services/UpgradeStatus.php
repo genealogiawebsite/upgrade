@@ -5,6 +5,7 @@ namespace LaravelEnso\Upgrade\Services;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use LaravelEnso\Upgrade\Contracts\Applicable;
+use LaravelEnso\Upgrade\Contracts\BeforeMigration;
 use LaravelEnso\Upgrade\Contracts\ShouldRunManually;
 use LaravelEnso\Upgrade\Contracts\Upgrade as Contract;
 use LaravelEnso\Upgrade\Enums\TableHeader;
@@ -20,6 +21,7 @@ class UpgradeStatus extends Upgrade
             TableHeader::Applicable => $this->applicable($upgrade),
             TableHeader::Manual => $this->isManual($upgrade),
             TableHeader::Priority => $this->priority($upgrade),
+            TableHeader::Migration => $this->migration($upgrade),
             TableHeader::Ran => $this->ran($upgrade),
             TableHeader::ChangedAt => $this->changedAt($upgrade),
         ]);
@@ -45,6 +47,13 @@ class UpgradeStatus extends Upgrade
 
         return $lastModifiedAt->format(Config::get('enso.config.dateTimeFormat')).
             " ({$lastModifiedAt->diffForHumans()})";
+    }
+
+    private function migration(Contract $upgrade): string
+    {
+        return $upgrade instanceof BeforeMigration
+            ? $this->yellow('Before')
+            : $this->green('After');
     }
 
     private function ran(Contract $upgrade): string

@@ -82,7 +82,7 @@ class Database extends Command
                 $this->upgrade->rollbackTableMigration();
             }
 
-            $this->error("{$this->title} was unsuccessfully, doing rollback");
+            $this->error("{$this->title} failed, doing rollback");
 
             throw $exception;
         }
